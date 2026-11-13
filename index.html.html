@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Camille Laurent — Designer UX/UI & Développeur Front-end</title>
+
+  <!-- Chargement de Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Typographies : Space Grotesk, Plus Jakarta Sans, Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+            display: ['"Space Grotesk"', '"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            cyanAccent: '#2BA4AC',
+            amberAccent: '#F39322',
+            deepTeal: '#012A2D',
+            abyssal: '#061B1D',
+          },
+          transitionTimingFunction: {
+            'futuristic': 'cubic-bezier(0.16, 1, 0.3, 1)',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* ==========================================================================
+       VARIABLES DE THÈME (MODE CLAIR LUMINEUX & MODE SOMBRE FUTURISTE)
+       ========================================================================== */
+    :root {
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --bg-canvas: #FAFAFA;
+      --bg-surface: #FFFFFF;
+      --bg-surface-elevated: rgba(255, 255, 255, 0.82);
+      --border-hairline: #E2E8F0;
+      --text-primary: #012A2D;
+      --text-secondary: #64748B;
+      --grid-line: rgba(226, 232, 240, 0.55);
+      --spotlight-color: rgba(43, 164, 172, 0.11);
+      --spotlight-border: rgba(43, 164, 172, 0.55);
+      --pill-bg: #F1F5F9;
+      --pill-active-bg: #FFFFFF;
+      --card-shadow: 0 20px 40px -15px rgba(1, 42, 45, 0.07);
+    }
+
+    html.dark {
+      --bg-canvas: #061B1D;
+      --bg-surface: #012A2D;
+      --bg-surface-elevated: rgba(1, 42, 45, 0.84);
+      --border-hairline: rgba(43, 164, 172, 0.22);
+      --text-primary: #F0F9FA;
+      --text-secondary: #94B8BC;
+      --grid-line: rgba(43, 164, 172, 0.08);
+      --spotlight-color: rgba(43, 164, 172, 0.18);
+      --spotlight-border: rgba(243, 147, 34, 0.65);
+      --pill-bg: rgba(6, 27, 29, 0.85);
+      --pill-active-bg: #0B3A3E;
+      --card-shadow: 0 24px 48px -15px rgba(0, 0, 0, 0.55);
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.45s var(--ease-out-expo), color 0.45s var(--ease-out-expo);
+    }
+
+    /* Classes utilitaires liées aux variables CSS */
+    .theme-surface {
+      background-color: var(--bg-surface);
+      transition: background-color 0.45s var(--ease-out-expo), border-color 0.45s var(--ease-out-expo);
+    }
+    .theme-canvas {
+      background-color: var(--bg-canvas);
+      transition: background-color 0.45s var(--ease-out-expo), border-color 0.45s var(--ease-out-expo);
+    }
+    .theme-border {
+      border-color: var(--border-hairline);
+    }
+    .theme-text {
+      color: var(--text-primary);
+    }
+    .theme-muted {
+      color: var(--text-secondary);
+    }
+
+    /* Grille technique subtile en arrière-plan */
+    .bg-tech-grid {
+      background-size: 48px 48px;
+      background-image:
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+      mask-image: radial-gradient(ellipse 85% 65% at 50% 0%, #000 65%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 85% 65% at 50% 0%, #000 65%, transparent 100%);
+    }
+
+    /* Animation d'entrée séquentielle (blur-to-sharp) */
+    @keyframes blurReveal {
+      0% {
+        opacity: 0;
+        filter: blur(8px);
+        transform: translateY(16px);
+      }
+      100% {
+        opacity: 1;
+        filter: blur(0);
+        transform: translateY(0);
+      }
+    }
+
+    .reveal-item {
+      opacity: 0;
+      animation: blurReveal 0.85s var(--ease-out-expo) forwards;
+    }
+    .delay-1 { animation-delay: 80ms; }
+    .delay-2 { animation-delay: 160ms; }
+    .delay-3 { animation-delay: 240ms; }
+    .delay-4 { animation-delay: 320ms; }
+
+    /* ==========================================================================
+       STYLE 01 : CARTES BENTO & SPOTLIGHT DYNAMIQUE
+       ========================================================================== */
+    .bento-card {
+      position: relative;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-hairline);
+      border-radius: 20px;
+      transition: transform 0.45s var(--ease-out-expo), box-shadow 0.45s var(--ease-out-expo), background-color 0.45s var(--ease-out-expo), border-color 0.35s ease;
+      overflow: hidden;
+    }
+
+    .bento-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(
+        520px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        var(--spotlight-color),
+        transparent 45%
+      );
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .bento-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: radial-gradient(
+        360px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        var(--spotlight-border),
+        transparent 50%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .bento-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--card-shadow);
+    }
+
+    .bento-card:hover::before,
+    .bento-card:hover::after {
+      opacity: 1;
+    }
+
+    .bento-visual {
+      transition: transform 0.65s var(--ease-out-expo);
+    }
+    .bento-card:hover .bento-visual {
+      transform: scale(1.03);
+    }
+
+    /* Bandeau défilant infini (Marquee) */
+    @keyframes marqueeScroll {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: marqueeScroll 30s linear infinite;
+    }
+    .marquee-wrapper:hover .marquee-track {
+      animation-play-state: paused;
+    }
+
+    /* Indicateur glissant de la navbar */
+    #nav-pill-indicator,
+    #style-pill-indicator {
+      transition: transform 0.45s var(--ease-out-expo), width 0.45s var(--ease-out-expo), background-color 0.45s ease;
+    }
+
+    /* ==========================================================================
+       STYLE 02 : SWISS GRID ÉDITORIAL & TEXT REVEAL
+       ========================================================================== */
+    .swiss-line-mask {
+      overflow: hidden;
+      display: block;
+    }
+    .swiss-line-inner {
+      display: block;
+      transform: translateY(105%);
+      transition: transform 0.85s var(--ease-out-expo);
+    }
+    .swiss-active .swiss-line-inner {
+      transform: translateY(0%);
+    }
+    .swiss-delay-1 { transition-delay: 60ms; }
+    .swiss-delay-2 { transition-delay: 140ms; }
+    .swiss-delay-3 { transition-delay: 220ms; }
+    .swiss-delay-4 { transition-delay: 300ms; }
+
+    .swiss-row {
+      transition: background-color 0.35s var(--ease-out-expo), padding-left 0.45s var(--ease-out-expo);
+    }
+    .swiss-row:hover {
+      background-color: rgba(43, 164, 172, 0.05);
+    }
+    html.dark .swiss-row:hover {
+      background-color: rgba(43, 164, 172, 0.09);
+    }
+
+    /* Prévisualisation flottante magnétique (Style 02) */
+    #swiss-floating-preview {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 340px;
+      height: 245px;
+      pointer-events: none;
+      z-index: 45;
+      opacity: 0;
+      transform: translate3d(-999px, -999px, 0) scale(0.92);
+      transition: opacity 0.3s var(--ease-out-expo), transform 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #swiss-floating-preview.visible {
+      opacity: 1;
+    }
+
+    /* ==========================================================================
+       TIROIR / MODALE D'ÉTUDE DE CAS
+       ========================================================================== */
+    .drawer-backdrop {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s var(--ease-out-expo);
+    }
+    .drawer-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .drawer-panel {
+      transform: translateX(100%);
+      transition: transform 0.55s var(--ease-out-expo);
+    }
+    .drawer-backdrop.open .drawer-panel {
+      transform: translateX(0%);
+    }
+
+    /* Barre de défilement épurée */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-canvas);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #94A3B8;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="selection:bg-cyanAccent/20 selection:text-cyanAccent">
+
+  <!-- Arrière-plan grille architecturale & halos lumineux discrets -->
+  <div class="fixed inset-0 bg-tech-grid pointer-events-none z-0"></div>
+  <div class="fixed top-[-140px] left-1/2 -translate-x-1/2 w-[820px] h-[360px] rounded-full bg-cyanAccent/[0.07] dark:bg-cyanAccent/[0.12] blur-[120px] pointer-events-none z-0"></div>
+
+  <!-- ========================================================================
+       BARRE SUPÉRIEURE UNIFIÉE : SÉLECTEUR D'ARCHITECTURE + NAVBAR PILULE + SWITCH THÈME
+       ======================================================================== -->
+  <header class="fixed top-4 left-0 right-0 z-40 px-3 sm:px-6 flex flex-col items-center gap-2.5 pointer-events-none">
+    <div class="pointer-events-auto flex flex-wrap items-center justify-center gap-2 sm:gap-3 max-w-5xl w-full">
+
+      <!-- SÉLECTEUR DE STYLE : [ 01. BENTO ] / [ 02. SWISS GRID ] -->
+      <div class="relative flex items-center p-1 rounded-full border theme-border backdrop-blur-xl shadow-[0_8px_30px_rgb(1,42,45,0.06)]" style="background-color: var(--bg-surface-elevated);" id="style-switcher-container" role="tablist" aria-label="Sélecteur d'architecture visuelle">
+        <div id="style-pill-indicator" class="absolute top-1 bottom-1 left-1 rounded-full border theme-border shadow-xs pointer-events-none" style="background-color: var(--pill-active-bg);"></div>
+        
+        <button type="button" role="tab" aria-selected="true" data-style-target="bento" class="style-tab relative z-10 px-3 py-1.5 rounded-full font-mono text-[11px] font-medium tracking-tight theme-text transition-colors cursor-pointer">
+          [ 01. BENTO ]
+        </button>
+        <button type="button" role="tab" aria-selected="false" data-style-target="swiss" class="style-tab relative z-10 px-3 py-1.5 rounded-full font-mono text-[11px] font-medium tracking-tight theme-muted hover:theme-text transition-colors cursor-pointer">
+          [ 02. SWISS GRID ]
+        </button>
+      </div>
+
+      <!-- NAVBAR FLOTTANTE PILULE EN VERRE DÉPOLI -->
+      <nav aria-label="Navigation principale" class="relative flex items-center justify-between gap-2 sm:gap-5 px-2.5 py-1.5 border theme-border rounded-full backdrop-blur-xl shadow-[0_8px_30px_rgb(1,42,45,0.06)]" style="background-color: var(--bg-surface-elevated);">
+        
+        <!-- Monogramme -->
+        <a href="#top" class="flex items-center gap-2 pl-1.5 pr-1 py-0.5 rounded-full group focus:outline-none">
+          <span class="w-7 h-7 rounded-full bg-deepTeal dark:bg-cyanAccent text-white dark:text-abyssal flex items-center justify-center font-mono text-xs font-semibold tracking-tighter group-hover:bg-amberAccent dark:group-hover:bg-amberAccent transition-colors duration-300">
+            CL
+          </span>
+          <span class="hidden md:inline font-semibold text-xs tracking-tight theme-text">Camille Laurent</span>
+        </a>
+
+        <!-- Onglets avec indicateur glissant (Spring animation) -->
+        <div class="relative flex items-center border theme-border rounded-full p-1" style="background-color: var(--pill-bg);" id="nav-tabs-container">
+          <div id="nav-pill-indicator" class="absolute top-1 bottom-1 left-1 border theme-border rounded-full shadow-2xs pointer-events-none" style="background-color: var(--pill-active-bg);"></div>
+          
+          <a href="#section-projets" data-tab="projets" class="nav-tab relative z-10 px-3 py-1 text-xs font-medium theme-text transition-colors duration-200">
+            Projets
+          </a>
+          <a href="#section-expertise" data-tab="expertise" class="nav-tab relative z-10 px-3 py-1 text-xs font-medium theme-muted hover:theme-text transition-colors duration-200">
+            Expertise
+          </a>
+          <a href="#section-contact" data-tab="contact" class="nav-tab relative z-10 px-3 py-1 text-xs font-medium theme-muted hover:theme-text transition-colors duration-200">
+            Contact
+          </a>
+        </div>
+
+        <!-- Badge de disponibilité pulsant -->
+        <a href="#section-contact" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full theme-canvas border theme-border hover:border-cyanAccent/60 transition-colors text-xs font-medium theme-text">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyanAccent opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-cyanAccent"></span>
+          </span>
+          <span class="font-mono text-[11px] tracking-tight">Disponible</span>
+        </a>
+
+        <!-- BOUTON SWITCH MODE CLAIR / MODE SOMBRE (Soleil / Lune) -->
+        <button id="theme-toggle-btn" type="button" aria-label="Basculer entre le mode clair et le mode sombre" class="relative w-8 h-8 rounded-full theme-canvas border theme-border hover:border-cyanAccent flex items-center justify-center theme-text transition-all duration-300 cursor-pointer group">
+          <!-- Icône Soleil (visible en mode sombre) -->
+          <svg id="icon-sun" class="w-4 h-4 text-amberAccent hidden dark:block transition-transform duration-500 group-hover:rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <!-- Icône Lune (visible en mode clair) -->
+          <svg id="icon-moon" class="w-4 h-4 text-deepTeal block dark:hidden transition-transform duration-500 group-hover:-rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CONTENU PRINCIPAL -->
+  <main id="top" class="relative z-10">
+
+    <!-- ======================================================================
+         ARCHITECTURE 01 : BENTO LIGHT & FUTURISTE (+ MODE SOMBRE)
+         ====================================================================== -->
+    <div id="view-bento" class="transition-opacity duration-500">
+
+      <!-- HERO SECTION BENTO -->
+      <section class="max-w-6xl mx-auto px-5 sm:px-8 pt-36 sm:pt-44 pb-16 sm:pb-24">
+        <div class="grid grid-cols-12 gap-y-8">
+          <div class="col-span-12 lg:col-span-10 lg:col-start-2 text-center flex flex-col items-center">
+            
+            <!-- Sur-titre technique -->
+            <div class="reveal-item inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full theme-surface border theme-border shadow-2xs mb-7">
+              <span class="font-mono text-[11px] uppercase tracking-widest text-cyanAccent font-medium">Systèmes &amp; Interfaces</span>
+              <span class="theme-muted opacity-40">|</span>
+              <span class="font-mono text-[11px] theme-muted">Paris &amp; Remote</span>
+            </div>
+
+            <!-- Titre principal géométrique -->
+            <h1 class="reveal-item delay-1 text-4xl sm:text-6xl lg:text-[64px] font-bold tracking-[-0.035em] leading-[1.08] theme-text max-w-4xl">
+              Designer UX/UI &amp; Développeur Front-end d'interfaces <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyanAccent via-teal-400 to-amberAccent">lumineuses.</span>
+            </h1>
+
+            <!-- Sous-titre concis -->
+            <p class="reveal-item delay-2 mt-6 text-base sm:text-lg theme-muted max-w-2xl leading-relaxed font-normal">
+              Je conçois des produits numériques clairs, des design systems évolutifs et des micro-interactions fluides qui allient rigueur ergonomique et esthétique futuriste.
+            </p>
+
+            <!-- Boutons d'action minimalistes -->
+            <div class="reveal-item delay-3 mt-9 flex flex-wrap items-center justify-center gap-3.5">
+              <a href="#section-projets" class="group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full bg-deepTeal dark:bg-cyanAccent text-white dark:text-abyssal text-sm font-semibold hover:bg-cyanAccent dark:hover:bg-amberAccent transition-all duration-300 shadow-sm">
+                <span>Explorer les études de cas</span>
+                <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </a>
+              
+              <button type="button" data-copy-email class="inline-flex items-center gap-2 px-6 py-3.5 rounded-full theme-surface theme-text border theme-border hover:border-cyanAccent text-sm font-medium transition-all duration-300 shadow-2xs cursor-pointer">
+                <span class="w-1.5 h-1.5 rounded-full bg-amberAccent"></span>
+                <span>camille@atelier-ui.fr</span>
+              </button>
+            </div>
+
+            <!-- Métriques synthétiques alignées -->
+            <div class="reveal-item delay-4 mt-16 pt-8 border-t theme-border w-full max-w-2xl grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div class="font-mono text-xs theme-muted mb-1">[EXPÉRIENCE]</div>
+                <div class="text-xl sm:text-2xl font-bold theme-text tracking-tight">7+ ans</div>
+              </div>
+              <div class="border-x theme-border">
+                <div class="font-mono text-xs theme-muted mb-1">[SYSTÈMES LIVRÉS]</div>
+                <div class="text-xl sm:text-2xl font-bold theme-text tracking-tight">24 produits</div>
+              </div>
+              <div>
+                <div class="font-mono text-xs theme-muted mb-1">[IMPACT MOYEN]</div>
+                <div class="text-xl sm:text-2xl font-bold text-cyanAccent tracking-tight">+38% conv.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- GRILLE BENTO PORTFOLIO (2 Colonnes symétriques, espacement 24px) -->
+      <section id="section-projets" class="max-w-6xl mx-auto px-5 sm:px-8 py-14 sm:py-20">
+        
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
+          <div>
+            <span class="font-mono text-xs uppercase tracking-widest text-cyanAccent block mb-2">// SÉLECTION 2024 — 2026</span>
+            <h2 class="text-2xl sm:text-3xl font-bold tracking-tight theme-text">Études de cas choisies</h2>
+          </div>
+          <p class="text-sm theme-muted max-w-md">
+            Cliquez sur une carte pour inspecter l'architecture UX, les décisions d'interface et les résultats mesurés.
+          </p>
+        </div>
+
+        <!-- Grille modulaire symétrique (gap-6 = 24px) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="bento-grid">
+
+          <!-- PROJET [01] : Aether OS -->
+          <article data-project="aether" class="bento-card group cursor-pointer p-5 sm:p-7 flex flex-col justify-between">
+            <div class="relative w-full aspect-[4/3] rounded-2xl theme-canvas border theme-border overflow-hidden p-5 sm:p-6 flex items-center justify-center">
+              <div class="bento-visual w-full h-full flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-teal-800"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-teal-800"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-cyanAccent"></span>
+                  </div>
+                  <span class="font-mono text-[10px] px-2.5 py-0.5 rounded-full theme-surface border theme-border theme-muted">AETHER CLOUD v4.2</span>
+                </div>
+                
+                <div class="grid grid-cols-12 gap-3 my-auto py-3">
+                  <div class="col-span-7 theme-surface rounded-xl border theme-border p-3.5 shadow-2xs">
+                    <div class="flex items-center justify-between mb-3">
+                      <span class="text-[11px] font-semibold theme-text">Flux énergétique</span>
+                      <span class="font-mono text-[10px] text-cyanAccent bg-cyanAccent/10 px-1.5 py-0.5 rounded">+14.2%</span>
+                    </div>
+                    <svg class="w-full h-16 overflow-visible" viewBox="0 0 200 60" fill="none">
+                      <defs>
+                        <linearGradient id="gradCyanBento" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="#2BA4AC" stop-opacity="0.25"/>
+                          <stop offset="100%" stop-color="#2BA4AC" stop-opacity="0"/>
+                        </linearGradient>
+                      </defs>
+                      <path d="M0 48 Q 35 42, 60 28 T 120 22 T 200 8 L 200 60 L 0 60 Z" fill="url(#gradCyanBento)"/>
+                      <path d="M0 48 Q 35 42, 60 28 T 120 22 T 200 8" stroke="#2BA4AC" stroke-width="2" stroke-linecap="round"/>
+                      <circle cx="120" cy="22" r="3.5" fill="#FFFFFF" stroke="#2BA4AC" stroke-width="2"/>
+                      <circle cx="200" cy="8" r="4" fill="#F39322"/>
+                    </svg>
+                  </div>
+                  <div class="col-span-5 flex flex-col gap-3">
+                    <div class="theme-surface rounded-xl border theme-border p-3 shadow-2xs flex-1 flex flex-col justify-between">
+                      <span class="font-mono text-[9px] theme-muted uppercase">Latence Nœud</span>
+                      <div class="text-lg font-bold theme-text">12<span class="text-xs font-normal theme-muted ml-0.5">ms</span></div>
+                      <div class="w-full h-1.5 theme-canvas rounded-full overflow-hidden">
+                        <div class="w-4/5 h-full bg-cyanAccent rounded-full"></div>
+                      </div>
+                    </div>
+                    <div class="theme-surface rounded-xl border theme-border p-3 shadow-2xs flex items-center justify-between">
+                      <div>
+                        <div class="text-[10px] font-medium theme-text">Auto-Sync</div>
+                        <div class="font-mono text-[9px] theme-muted">Actif</div>
+                      </div>
+                      <div class="w-8 h-4.5 bg-cyanAccent rounded-full p-0.5 flex justify-end items-center">
+                        <span class="w-3.5 h-3.5 rounded-full bg-white"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between text-[10px] font-mono theme-muted pt-1 border-t theme-border">
+                  <span>GRID_12 // TOKENS_SYNC</span>
+                  <span class="theme-text font-medium">99.98% UPTIME</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 flex items-start justify-between gap-4">
+              <div>
+                <div class="flex items-center gap-2.5 mb-1.5">
+                  <span class="font-mono text-xs text-cyanAccent font-semibold">[01]</span>
+                  <span class="font-mono text-xs theme-muted">SaaS &amp; Data Visualization</span>
+                </div>
+                <h3 class="text-xl font-bold theme-text tracking-tight group-hover:text-cyanAccent transition-colors">
+                  Aether OS — Console de Télémétrie
+                </h3>
+                <p class="mt-1.5 text-sm theme-muted line-clamp-2">
+                  Refonte complète d'une plateforme de supervision cloud temps réel pour ingénieurs DevOps.
+                </p>
+              </div>
+              <span class="shrink-0 w-10 h-10 rounded-full border theme-border flex items-center justify-center theme-text group-hover:bg-deepTeal dark:group-hover:bg-cyanAccent group-hover:text-white dark:group-hover:text-abyssal transition-all duration-300">
+                <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
+                </svg>
+              </span>
+            </div>
+          </article>
+
+          <!-- PROJET [02] : Kinetix Pay -->
+          <article data-project="kinetix" class="bento-card group cursor-pointer p-5 sm:p-7 flex flex-col justify-between">
+            <div class="relative w-full aspect-[4/3] rounded-2xl theme-canvas border theme-border overflow-hidden p-5 sm:p-6 flex items-center justify-center">
+              <div class="bento-visual w-full h-full flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                  <span class="font-mono text-[10px] px-2.5 py-0.5 rounded-full theme-surface border theme-border theme-text font-medium">KINETIX TREASURY</span>
+                  <span class="font-mono text-[10px] text-amberAccent bg-amberAccent/10 px-2 py-0.5 rounded-full">ISO 20022</span>
+                </div>
+
+                <div class="my-auto py-2 grid grid-cols-12 gap-3 items-center">
+                  <div class="col-span-6 bg-deepTeal text-white rounded-2xl p-4 shadow-md flex flex-col justify-between h-36 relative overflow-hidden border border-cyanAccent/30">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-cyanAccent/25 blur-md"></div>
+                    <div class="flex justify-between items-center relative z-10">
+                      <span class="font-mono text-[10px] tracking-widest opacity-75">CORP CARD</span>
+                      <span class="w-5 h-3.5 rounded-xs border border-white/30"></span>
+                    </div>
+                    <div class="relative z-10">
+                      <div class="font-mono text-[10px] opacity-60">Solde disponible</div>
+                      <div class="text-lg font-bold tracking-tight mt-0.5">148 920,00 €</div>
+                    </div>
+                    <div class="flex justify-between items-center font-mono text-[9px] opacity-75 relative z-10">
+                      <span>•••• 4829</span>
+                      <span>09/29</span>
+                    </div>
+                  </div>
+
+                  <div class="col-span-6 space-y-2.5">
+                    <div class="theme-surface border theme-border rounded-xl p-2.5 flex items-center justify-between shadow-2xs">
+                      <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-lg bg-cyanAccent/15 text-cyanAccent flex items-center justify-center font-mono text-[10px] font-bold">↗</span>
+                        <div>
+                          <div class="text-[11px] font-semibold theme-text">Virement SEPA</div>
+                          <div class="font-mono text-[9px] theme-muted">Instantané</div>
+                        </div>
+                      </div>
+                      <span class="font-mono text-[11px] font-semibold theme-text">-4 200€</span>
+                    </div>
+                    <div class="theme-surface border theme-border rounded-xl p-2.5 flex items-center justify-between shadow-2xs">
+                      <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-lg bg-amberAccent/15 text-amberAccent flex items-center justify-center font-mono text-[10px] font-bold">✦</span>
+                        <div>
+                          <div class="text-[11px] font-semibold theme-text">Yield Trésorerie</div>
+                          <div class="font-mono text-[9px] theme-muted">4.15% APY</div>
+                        </div>
+                      </div>
+                      <span class="font-mono text-[11px] font-semibold text-cyanAccent">+618€</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between text-[10px] font-mono theme-muted pt-1 border-t theme-border">
+                  <span>MULTI-DEVISES // 0 LATENCE</span>
+                  <span class="theme-text font-medium">FINTECH B2B</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 flex items-start justify-between gap-4">
+              <div>
+                <div class="flex items-center gap-2.5 mb-1.5">
+                  <span class="font-mono text-xs text-cyanAccent font-semibold">[02]</span>
+                  <span class="font-mono text-xs theme-muted">Fintech &amp; Mobile App</span>
+                </div>
+                <h3 class="text-xl font-bold theme-text tracking-tight group-hover:text-cyanAccent transition-colors">
+                  Kinetix — Trésorerie Automatisée
+                </h3>
+                <p class="mt-1.5 text-sm theme-muted line-clamp-2">
+                  Architecture mobile-first et parcours d'approbation biométrique pour directeurs financiers.
+                </p>
+              </div>
+              <span class="shrink-0 w-10 h-10 rounded-full border theme-border flex items-center justify-center theme-text group-hover:bg-deepTeal dark:group-hover:bg-cyanAccent group-hover:text-white dark:group-hover:text-abyssal transition-all duration-300">
+                <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
+                </svg>
+              </span>
+            </div>
+          </article>
+
+          <!-- PROJET [03] : Prisma Design System -->
+          <article data-project="prisma" class="bento-card group cursor-pointer p-5 sm:p-7 flex flex-col justify-between">
+            <div class="relative w-full aspect-[4/3] rounded-2xl theme-canvas border theme-border overflow-hidden p-5 sm:p-6 flex items-center justify-center">
+              <div class="bento-visual w-full h-full flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                  <span class="font-mono text-[10px] px-2.5 py-0.5 rounded-full theme-surface border theme-border theme-muted">PRISMA UI KIT // v3.0</span>
+                  <div class="flex items-center gap-1">
+                    <span class="w-3 h-3 rounded-full bg-deepTeal dark:bg-white"></span>
+                    <span class="w-3 h-3 rounded-full bg-cyanAccent"></span>
+                    <span class="w-3 h-3 rounded-full bg-amberAccent"></span>
+                  </div>
+                </div>
+
+                <div class="my-auto py-2 grid grid-cols-3 gap-2.5">
+                  <div class="theme-surface border theme-border rounded-xl p-3 flex flex-col justify-between">
+                    <span class="font-mono text-[9px] theme-muted">BUTTONS</span>
+                    <div class="space-y-1.5 my-2">
+                      <div class="h-6 rounded-full bg-cyanAccent text-abyssal text-[9px] font-semibold flex items-center justify-center">Primaire</div>
+                      <div class="h-6 rounded-full theme-canvas border theme-border theme-text text-[9px] font-medium flex items-center justify-center">Secondaire</div>
+                    </div>
+                    <span class="font-mono text-[8px] text-cyanAccent">4 variants</span>
+                  </div>
+
+                  <div class="theme-surface border theme-border rounded-xl p-3 flex flex-col justify-between">
+                    <span class="font-mono text-[9px] theme-muted">TYPOGRAPHY</span>
+                    <div class="my-2">
+                      <div class="text-2xl font-bold tracking-tight theme-text leading-none">Aa</div>
+                      <div class="font-mono text-[9px] theme-muted mt-1">Scale 1.250</div>
+                    </div>
+                    <span class="font-mono text-[8px] text-cyanAccent">WCAG AAA</span>
+                  </div>
+
+                  <div class="theme-surface border theme-border rounded-xl p-3 flex flex-col justify-between">
+                    <span class="font-mono text-[9px] theme-muted">SPACING</span>
+                    <div class="my-2 space-y-1.5">
+                      <div class="flex items-center gap-1.5">
+                        <div class="w-3 h-2 bg-cyanAccent/40 rounded-xs"></div>
+                        <span class="font-mono text-[8px] theme-text">8px</span>
+                      </div>
+                      <div class="flex items-center gap-1.5">
+                        <div class="w-6 h-2 bg-cyanAccent/70 rounded-xs"></div>
+                        <span class="font-mono text-[8px] theme-text">16px</span>
+                      </div>
+                      <div class="flex items-center gap-1.5">
+                        <div class="w-9 h-2 bg-cyanAccent rounded-xs"></div>
+                        <span class="font-mono text-[8px] theme-text">24px</span>
+                      </div>
+                    </div>
+                    <span class="font-mono text-[8px] text-cyanAccent">Base 4pt</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between text-[10px] font-mono theme-muted pt-1 border-t theme-border">
+                  <span>FIGMA VARIABLES ↔ REACT</span>
+                  <span class="theme-text font-medium">140+ COMPOSANTS</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 flex items-start justify-between gap-4">
+              <div>
+                <div class="flex items-center gap-2.5 mb-1.5">
+                  <span class="font-mono text-xs text-cyanAccent font-semibold">[03]</span>
+                  <span class="font-mono text-xs theme-muted">Design System &amp; Tokens</span>
+                </div>
+                <h3 class="text-xl font-bold theme-text tracking-tight group-hover:text-cyanAccent transition-colors">
+                  Prisma — Architecture Multi-Marques
+                </h3>
+                <p class="mt-1.5 text-sm theme-muted line-clamp-2">
+                  Système de design unifié synchronisant Figma Variables et composants React accessibles.
+                </p>
+              </div>
+              <span class="shrink-0 w-10 h-10 rounded-full border theme-border flex items-center justify-center theme-text group-hover:bg-deepTeal dark:group-hover:bg-cyanAccent group-hover:text-white dark:group-hover:text-abyssal transition-all duration-300">
+                <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
+                </svg>
+              </span>
+            </div>
+          </article>
+
+          <!-- PROJET [04] : Lumina Health AI -->
+          <article data-project="lumina" class="bento-card group cursor-pointer p-5 sm:p-7 flex flex-col justify-between">
+            <div class="relative w-full aspect-[4/3] rounded-2xl theme-canvas border theme-border overflow-hidden p-5 sm:p-6 flex items-center justify-center">
+              <div class="bento-visual w-full h-full flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                  <span class="font-mono text-[10px] px-2.5 py-0.5 rounded-full theme-surface border theme-border theme-text">LUMINA DIAGNOSTIC</span>
+                  <span class="inline-flex items-center gap-1 font-mono text-[10px] text-cyanAccent">
+                    <span class="w-1.5 h-1.5 rounded-full bg-cyanAccent"></span> IA ASSISTÉE
+                  </span>
+                </div>
+
+                <div class="my-auto py-2 grid grid-cols-12 gap-3">
+                  <div class="col-span-5 theme-surface border theme-border rounded-xl p-3 flex flex-col items-center justify-center relative">
+                    <svg class="w-24 h-24" viewBox="0 0 100 100" fill="none">
+                      <circle cx="50" cy="50" r="40" stroke="#2BA4AC" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="3 3"/>
+                      <circle cx="50" cy="50" r="26" stroke="#2BA4AC" stroke-width="1.2" stroke-opacity="0.6"/>
+                      <circle cx="50" cy="50" r="12" fill="#2BA4AC" fill-opacity="0.18" stroke="#2BA4AC" stroke-width="1.5"/>
+                      <line x1="50" y1="6" x2="50" y2="94" stroke="#2BA4AC" stroke-opacity="0.25" stroke-width="1"/>
+                      <line x1="6" y1="50" x2="94" y2="50" stroke="#2BA4AC" stroke-opacity="0.25" stroke-width="1"/>
+                      <circle cx="68" cy="34" r="3.5" fill="#F39322"/>
+                    </svg>
+                    <span class="font-mono text-[9px] theme-muted mt-1">SCAN_ZONE_04</span>
+                  </div>
+
+                  <div class="col-span-7 theme-surface border theme-border rounded-xl p-3.5 flex flex-col justify-between">
+                    <div>
+                      <div class="flex justify-between items-center">
+                        <span class="text-[11px] font-semibold theme-text">Synthèse Biomarqueurs</span>
+                        <span class="font-mono text-[9px] theme-muted">98.4% conf.</span>
+                      </div>
+                      <p class="text-[10px] theme-muted mt-1 leading-snug">
+                        Priorisation automatique des anomalies critiques pour réduire la fatigue cognitive.
+                      </p>
+                    </div>
+                    <div class="space-y-1.5 pt-2">
+                      <div class="flex justify-between text-[9px] font-mono">
+                        <span class="theme-text">Temps d'analyse</span>
+                        <span class="text-cyanAccent font-semibold">-42%</span>
+                      </div>
+                      <div class="w-full h-1.5 theme-canvas rounded-full overflow-hidden">
+                        <div class="w-[72%] h-full bg-gradient-to-r from-cyanAccent to-amberAccent rounded-full"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between text-[10px] font-mono theme-muted pt-1 border-t theme-border">
+                  <span>MEDTECH // ERGONOMIE CLINIQUE</span>
+                  <span class="theme-text font-medium">CERTIFIÉ CE</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 flex items-start justify-between gap-4">
+              <div>
+                <div class="flex items-center gap-2.5 mb-1.5">
+                  <span class="font-mono text-xs text-cyanAccent font-semibold">[04]</span>
+                  <span class="font-mono text-xs theme-muted">HealthTech &amp; IA</span>
+                </div>
+                <h3 class="text-xl font-bold theme-text tracking-tight group-hover:text-cyanAccent transition-colors">
+                  Lumina — Copilote de Diagnostic
+                </h3>
+                <p class="mt-1.5 text-sm theme-muted line-clamp-2">
+                  Interface d'aide à la décision médicale conçue avec 35 praticiens hospitaliers.
+                </p>
+              </div>
+              <span class="shrink-0 w-10 h-10 rounded-full border theme-border flex items-center justify-center theme-text group-hover:bg-deepTeal dark:group-hover:bg-cyanAccent group-hover:text-white dark:group-hover:text-abyssal transition-all duration-300">
+                <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
+                </svg>
+              </span>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- BANDEAU DÉFILANT INFINI (MARQUEE OUTILS) + EXPERTISE BENTO -->
+      <section id="section-expertise" class="py-14 sm:py-20">
+        <div class="marquee-wrapper relative w-full overflow-hidden border-y theme-border theme-surface py-5">
+          <div class="marquee-track flex items-center gap-8 sm:gap-12">
+            <!-- Série 1 -->
+            <div class="flex items-center gap-8 sm:gap-12 shrink-0">
+              <span class="flex items-center gap-3 text-sm sm:text-base font-semibold theme-text">
+                <span class="w-2 h-2 rounded-full bg-cyanAccent"></span> Figma &amp; Variables
+              </span>
+              <span class="font-mono text-xs theme-muted">/</span>
+              <span class="flex items-center gap-3 text-sm sm:text-base font-semibold theme-text">
+                <span class="w-2 h-2 rounded-full bg-amberAccent"></span> React &amp; TypeScript
+              </span>
+              <span class="font-mono text-xs theme-muted">/</span>
+              <span class="flex items-center gap-3 text-sm sm:text-base font-semibold theme-text">
+                <span class="w-2 h-2 rounded-full bg-cyanAccent"></span> HTML / CSS &amp; Tailwind
+              </span>
+              <span class="font-mono text-xs theme-muted">/</span>
+              <span class="flex items-center gap-3 text-sm sm:text-base font-semibold theme-text">
+                <span class="w-2 h-2 rounded-full bg-amberAccent"></span> Adobe Illustrator
+              </span>
+              <span class="font-mono text-xs theme-muted">/</span>
+              <span class="flex items-center gap-3 text-sm sm:text-base font-semibold theme-text">
+                <span class="w-2 h-2 rounded-full bg-cyanAccent"></span> Design Systems
+              </span>
+              <span class="font-mono text-xs theme-muted">/</span>
+              <span class="flex items-center gap-3 text-sm sm:text-base font-semibold theme-text">
+                <span class="w-2 h-2 rounded-full bg-amberAccent"></span> Prototypage Interactif
+              </span>
+              <span class="font-mono text-xs theme-muted">/</span>
+            </div>
+            <!-- Série 2 (dupliquée pour boucle sans couture) -->
+            <div class="flex items-center gap-8 sm:gap-12 shrink-0" aria-hidden="true">
+              <span class="flex items-center gap-3 text-sm sm:text-base font-semibold theme-text">
+                <span class="w-2 h-2 rounded-full bg-cyanAccent"></span> Figma &amp; Variables
+              </span>
+              <span class="font-mono text-xs theme-muted">/</span>
+              <span class="flex items-center gap-3 text-sm sm:text-base font-semibold theme-text">
+                <span class="w-2 h-2 rounded-full bg-amberAccent"></span> React &amp; TypeScript
+              </span>
+              <span class="font-mono text-xs theme-muted">/</span>
+              <span class="flex items-center gap-3 text-sm sm:text-base font-semibold theme-text">
+                <span class="w-2 h-2 rounded-full bg-cyanAccent"></span> HTML / CSS &amp; Tailwind
+              </span>
+              <span class="font-mono text-xs theme-muted">/</span>
+              <span class="flex items-center gap-3 text-sm sm:text-base font-semibold theme-text">
+                <span class="w-2 h-2 rounded-full bg-amberAccent"></span> Adobe Illustrator
+              </span>
+              <span class="font-mono text-xs theme-muted">/</span>
+              <span class="flex items-center gap-3 text-sm sm:text-base font-semibold theme-text">
+                <span class="w-2 h-2 rounded-full bg-cyanAccent"></span> Design Systems
+              </span>
+              <span class="font-mono text-xs theme-muted">/</span>
+              <span class="flex items-center gap-3 text-sm sm:text-base font-semibold theme-text">
+                <span class="w-2 h-2 rounded-full bg-amberAccent"></span> Prototypage Interactif
+              </span>
+              <span class="font-mono text-xs theme-muted">/</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grille 3 piliers méthodologiques -->
+        <div class="max-w-6xl mx-auto px-5 sm:px-8 mt-20">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="theme-surface border theme-border rounded-[20px] p-7">
+              <span class="font-mono text-xs text-cyanAccent">01 // RECHERCHE &amp; CADRAGE</span>
+              <h3 class="text-lg font-bold theme-text mt-3">Clarté Cognitive</h3>
+              <p class="text-sm theme-muted mt-2 leading-relaxed">
+                Audits heuristiques, tests utilisateurs modérés et architecture de l'information orientée vers la réduction de friction.
+              </p>
+            </div>
+            <div class="theme-surface border theme-border rounded-[20px] p-7">
+              <span class="font-mono text-xs text-cyanAccent">02 // SYSTÈMES &amp; UI</span>
+              <h3 class="text-lg font-bold theme-text mt-3">Précision Géométrique</h3>
+              <p class="text-sm theme-muted mt-2 leading-relaxed">
+                Création de bibliothèques de composants modulaires, grilles typographiques strictes et jetons de design documentés.
+              </p>
+            </div>
+            <div class="theme-surface border theme-border rounded-[20px] p-7">
+              <span class="font-mono text-xs text-cyanAccent">03 // CODE &amp; MOUVEMENT</span>
+              <h3 class="text-lg font-bold theme-text mt-3">Prototypage Vivant</h3>
+              <p class="text-sm theme-muted mt-2 leading-relaxed">
+                Intégration front-end soignée et chorégraphie d'animations subtiles pour aligner parfaitement vision design et production.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ======================================================================
+         ARCHITECTURE 02 : SWISS GRID ÉDITORIAL & TYPOGRAPHIE CINÉTIQUE
+         ====================================================================== -->
+    <div id="view-swiss" class="hidden pt-28 sm:pt-36 pb-12">
+      
+      <!-- HERO SECTION SWISS GRID ASYMÉTRIQUE (12 Colonnes + Lignes structurelles 1px) -->
+      <section class="max-w-7xl mx-auto px-5 sm:px-8">
+        <div class="border-t border-b theme-border grid grid-cols-1 lg:grid-cols-12">
+          
+          <!-- Colonne latérale technique (4 colonnes) -->
+          <div class="lg:col-span-4 py-8 lg:py-14 lg:pr-8 lg:border-r theme-border flex flex-col justify-between gap-8">
+            <div>
+              <div class="font-mono text-xs uppercase tracking-widest text-cyanAccent mb-3">
+                INDEX // ARCHIVE 2026
+              </div>
+              <p class="text-sm theme-muted leading-relaxed">
+                Approche éditoriale et typographique dédiée aux interfaces numériques à haute précision. Chaque pixel répond à une intention fonctionnelle.
+              </p>
+            </div>
+
+            <div class="space-y-2.5 font-mono text-xs">
+              <div class="flex justify-between py-1.5 border-b theme-border">
+                <span class="theme-muted">DISCIPLINE</span>
+                <span class="theme-text font-medium">UX/UI &amp; FRONT-END</span>
+              </div>
+              <div class="flex justify-between py-1.5 border-b theme-border">
+                <span class="theme-muted">LOCALISATION</span>
+                <span class="theme-text font-medium">PARIS / UTC+1</span>
+              </div>
+              <div class="flex justify-between py-1.5">
+                <span class="theme-muted">STATUT</span>
+                <span class="text-cyanAccent font-medium">● DISPONIBLE</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Colonne principale typographique (8 colonnes) avec Text Reveal -->
+          <div class="lg:col-span-8 py-10 lg:py-14 lg:pl-12 flex flex-col justify-between">
+            <h1 class="font-display text-4xl sm:text-6xl lg:text-[68px] font-bold tracking-[-0.04em] leading-[1.02] theme-text">
+              <span class="swiss-line-mask"><span class="swiss-line-inner swiss-delay-1">ARCHITECTURE</span></span>
+              <span class="swiss-line-mask"><span class="swiss-line-inner swiss-delay-2">D'INTERFACES <span class="text-cyanAccent">&amp;</span></span></span>
+              <span class="swiss-line-mask"><span class="swiss-line-inner swiss-delay-3">SYSTÈMES CLAIRS.</span></span>
+            </h1>
+
+            <div class="mt-10 pt-6 border-t theme-border flex flex-wrap items-center justify-between gap-4">
+              <span class="font-mono text-xs theme-muted">SURVOLEZ UNE LIGNE POUR INSPECTER L'APERÇU UI</span>
+              <div class="flex items-center gap-3">
+                <a href="#swiss-index" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-deepTeal dark:bg-cyanAccent text-white dark:text-abyssal font-mono text-xs font-semibold hover:bg-amberAccent dark:hover:bg-amberAccent transition-colors">
+                  <span>PARCOURIR L'INDEX [04]</span>
+                  <span>↓</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- INDEX DE PROJETS SWISS GRID (Lignes 1px + Prévisualisation flottante magnétique) -->
+      <section id="swiss-index" class="max-w-7xl mx-auto px-5 sm:px-8 mt-16 sm:mt-24">
+        
+        <!-- En-tête de tableau éditorial -->
+        <div class="grid grid-cols-12 pb-4 border-b theme-border font-mono text-[11px] uppercase tracking-wider theme-muted">
+          <div class="col-span-2 sm:col-span-1">N°</div>
+          <div class="col-span-7 sm:col-span-5">PROJET &amp; SYSTÈME</div>
+          <div class="hidden sm:block sm:col-span-4">DISCIPLINE</div>
+          <div class="col-span-3 sm:col-span-2 text-right">ANNÉE / ACTION</div>
+        </div>
+
+        <!-- Liste interactive des projets -->
+        <div id="swiss-project-list" class="divide-y theme-border border-b theme-border">
+          
+          <!-- Ligne [01] -->
+          <div data-project="aether" class="swiss-row group cursor-pointer grid grid-cols-12 items-center py-7 sm:py-9 px-2">
+            <div class="col-span-2 sm:col-span-1 font-mono text-xs sm:text-sm text-cyanAccent font-semibold">
+              [01]
+            </div>
+            <div class="col-span-7 sm:col-span-5 pr-4">
+              <h2 class="font-display text-2xl sm:text-4xl font-bold tracking-tight theme-text group-hover:text-cyanAccent group-hover:translate-x-2 transition-all duration-300">
+                Aether OS
+              </h2>
+              <p class="text-xs sm:text-sm theme-muted mt-1">Console de télémétrie cloud temps réel</p>
+            </div>
+            <div class="hidden sm:flex sm:col-span-4 flex-wrap gap-2">
+              <span class="font-mono text-[11px] px-2.5 py-1 rounded-full border theme-border theme-muted">SaaS</span>
+              <span class="font-mono text-[11px] px-2.5 py-1 rounded-full border theme-border theme-muted">Data-Viz</span>
+              <span class="font-mono text-[11px] px-2.5 py-1 rounded-full border theme-border theme-muted">Design System</span>
+            </div>
+            <div class="col-span-3 sm:col-span-2 flex items-center justify-end gap-3 font-mono text-xs theme-text">
+              <span class="hidden md:inline theme-muted">2026</span>
+              <span class="w-9 h-9 rounded-full border theme-border flex items-center justify-center group-hover:bg-cyanAccent group-hover:text-abyssal group-hover:border-cyanAccent transition-all">
+                ↗
+              </span>
+            </div>
+          </div>
+
+          <!-- Ligne [02] -->
+          <div data-project="kinetix" class="swiss-row group cursor-pointer grid grid-cols-12 items-center py-7 sm:py-9 px-2">
+            <div class="col-span-2 sm:col-span-1 font-mono text-xs sm:text-sm text-cyanAccent font-semibold">
+              [02]
+            </div>
+            <div class="col-span-7 sm:col-span-5 pr-4">
+              <h2 class="font-display text-2xl sm:text-4xl font-bold tracking-tight theme-text group-hover:text-cyanAccent group-hover:translate-x-2 transition-all duration-300">
+                Kinetix Pay
+              </h2>
+              <p class="text-xs sm:text-sm theme-muted mt-1">Trésorerie automatisée &amp; validation biométrique</p>
+            </div>
+            <div class="hidden sm:flex sm:col-span-4 flex-wrap gap-2">
+              <span class="font-mono text-[11px] px-2.5 py-1 rounded-full border theme-border theme-muted">Fintech</span>
+              <span class="font-mono text-[11px] px-2.5 py-1 rounded-full border theme-border theme-muted">iOS / Android</span>
+            </div>
+            <div class="col-span-3 sm:col-span-2 flex items-center justify-end gap-3 font-mono text-xs theme-text">
+              <span class="hidden md:inline theme-muted">2025</span>
+              <span class="w-9 h-9 rounded-full border theme-border flex items-center justify-center group-hover:bg-cyanAccent group-hover:text-abyssal group-hover:border-cyanAccent transition-all">
+                ↗
+              </span>
+            </div>
+          </div>
+
+          <!-- Ligne [03] -->
+          <div data-project="prisma" class="swiss-row group cursor-pointer grid grid-cols-12 items-center py-7 sm:py-9 px-2">
+            <div class="col-span-2 sm:col-span-1 font-mono text-xs sm:text-sm text-cyanAccent font-semibold">
+              [03]
+            </div>
+            <div class="col-span-7 sm:col-span-5 pr-4">
+              <h2 class="font-display text-2xl sm:text-4xl font-bold tracking-tight theme-text group-hover:text-cyanAccent group-hover:translate-x-2 transition-all duration-300">
+                Prisma UI Kit
+              </h2>
+              <p class="text-xs sm:text-sm theme-muted mt-1">Architecture multi-marques &amp; jetons synchronisés</p>
+            </div>
+            <div class="hidden sm:flex sm:col-span-4 flex-wrap gap-2">
+              <span class="font-mono text-[11px] px-2.5 py-1 rounded-full border theme-border theme-muted">Design Tokens</span>
+              <span class="font-mono text-[11px] px-2.5 py-1 rounded-full border theme-border theme-muted">React</span>
+            </div>
+            <div class="col-span-3 sm:col-span-2 flex items-center justify-end gap-3 font-mono text-xs theme-text">
+              <span class="hidden md:inline theme-muted">2025</span>
+              <span class="w-9 h-9 rounded-full border theme-border flex items-center justify-center group-hover:bg-cyanAccent group-hover:text-abyssal group-hover:border-cyanAccent transition-all">
+                ↗
+              </span>
+            </div>
+          </div>
+
+          <!-- Ligne [04] -->
+          <div data-project="lumina" class="swiss-row group cursor-pointer grid grid-cols-12 items-center py-7 sm:py-9 px-2">
+            <div class="col-span-2 sm:col-span-1 font-mono text-xs sm:text-sm text-cyanAccent font-semibold">
+              [04]
+            </div>
+            <div class="col-span-7 sm:col-span-5 pr-4">
+              <h2 class="font-display text-2xl sm:text-4xl font-bold tracking-tight theme-text group-hover:text-cyanAccent group-hover:translate-x-2 transition-all duration-300">
+                Lumina Health
+              </h2>
+              <p class="text-xs sm:text-sm theme-muted mt-1">Copilote d'imagerie médicale &amp; diagnostic IA</p>
+            </div>
+            <div class="hidden sm:flex sm:col-span-4 flex-wrap gap-2">
+              <span class="font-mono text-[11px] px-2.5 py-1 rounded-full border theme-border theme-muted">MedTech</span>
+              <span class="font-mono text-[11px] px-2.5 py-1 rounded-full border theme-border theme-muted">IA Explicable</span>
+            </div>
+            <div class="col-span-3 sm:col-span-2 flex items-center justify-end gap-3 font-mono text-xs theme-text">
+              <span class="hidden md:inline theme-muted">2024</span>
+              <span class="w-9 h-9 rounded-full border theme-border flex items-center justify-center group-hover:bg-cyanAccent group-hover:text-abyssal group-hover:border-cyanAccent transition-all">
+                ↗
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Grille éditoriale des compétences (Swiss Grid 4 colonnes bordées) -->
+        <div class="mt-20 border-t border-l theme-border grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="p-6 border-r border-b theme-border">
+            <span class="font-mono text-xs text-cyanAccent">01 / DESIGN</span>
+            <h3 class="font-display text-lg font-bold theme-text mt-2">Direction UI &amp; Systèmes</h3>
+            <p class="text-xs theme-muted mt-2 leading-relaxed">Figma Variables, grilles modulaires, typographie éditoriale et bibliothèques multi-plateformes.</p>
+          </div>
+          <div class="p-6 border-r border-b theme-border">
+            <span class="font-mono text-xs text-cyanAccent">02 / RECHERCHE</span>
+            <h3 class="font-display text-lg font-bold theme-text mt-2">Architecture UX</h3>
+            <p class="text-xs theme-muted mt-2 leading-relaxed">Tests utilisateurs, parcours complexes, tri de cartes et optimisation de conversion.</p>
+          </div>
+          <div class="p-6 border-r border-b theme-border">
+            <span class="font-mono text-xs text-cyanAccent">03 / INGÉNIERIE</span>
+            <h3 class="font-display text-lg font-bold theme-text mt-2">Développement Front-end</h3>
+            <p class="text-xs theme-muted mt-2 leading-relaxed">React, TypeScript, HTML/CSS sémantique, Tailwind CSS et animations haute performance.</p>
+          </div>
+          <div class="p-6 border-r border-b theme-border">
+            <span class="font-mono text-xs text-amberAccent">04 / IDENTITÉ</span>
+            <h3 class="font-display text-lg font-bold theme-text mt-2">Illustration &amp; Vecteurs</h3>
+            <p class="text-xs theme-muted mt-2 leading-relaxed">Adobe Illustrator, iconographie filaire sur-mesure et schémas techniques interactifs.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ======================================================================
+         FOOTER MINIMALISTE & CONTACT (COMMUN AUX DEUX STYLES)
+         ====================================================================== -->
+    <footer id="section-contact" class="max-w-6xl mx-auto px-5 sm:px-8 pt-10 pb-16">
+      <div class="theme-surface border theme-border rounded-[24px] p-8 sm:p-12 text-center relative overflow-hidden">
+        <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyanAccent/60 to-transparent"></div>
+        
+        <span class="font-mono text-xs uppercase tracking-widest text-cyanAccent">Collaborons ensemble</span>
+        <h2 class="text-2xl sm:text-4xl font-bold tracking-tight theme-text mt-3 max-w-xl mx-auto">
+          Un produit ambitieux à concevoir ou repenser ?
+        </h2>
+        <p class="text-sm sm:text-base theme-muted mt-3 max-w-md mx-auto">
+          Disponible pour des missions de conseil UX/UI, création de Design Systems ou développement d'interfaces sur-mesure.
+        </p>
+
+        <!-- Bouton principal de copie d'e-mail avec toast -->
+        <div class="mt-8 flex justify-center">
+          <button id="footer-copy-btn" type="button" data-copy-email class="group relative inline-flex items-center gap-3 px-7 py-4 rounded-full bg-deepTeal dark:bg-cyanAccent text-white dark:text-abyssal text-sm font-semibold hover:bg-cyanAccent dark:hover:bg-amberAccent transition-all duration-300 shadow-sm cursor-pointer">
+            <svg class="w-4 h-4 text-cyanAccent dark:text-abyssal group-hover:text-white dark:group-hover:text-abyssal transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <span id="footer-copy-label">Copier l'e-mail</span>
+            <span class="font-mono text-xs opacity-75 hidden sm:inline">camille@atelier-ui.fr</span>
+          </button>
+        </div>
+
+        <!-- Barre inférieure horizontale stricte -->
+        <div class="mt-12 pt-8 border-t theme-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs theme-muted">
+          <div class="flex items-center gap-5 font-medium">
+            <a href="#dribbble" onclick="event.preventDefault(); showToast('Profil Dribbble ouvert');" class="hover:text-cyanAccent transition-colors">Dribbble</a>
+            <a href="#linkedin" onclick="event.preventDefault(); showToast('Profil LinkedIn ouvert');" class="hover:text-cyanAccent transition-colors">LinkedIn</a>
+            <a href="#github" onclick="event.preventDefault(); showToast('Profil GitHub ouvert');" class="hover:text-cyanAccent transition-colors">GitHub</a>
+          </div>
+
+          <div class="font-mono text-[11px]">
+            © 2026 CAMILLE LAURENT — ARCHITECTURE DUALE
+          </div>
+
+          <a href="#top" class="inline-flex items-center gap-1.5 font-medium theme-text hover:text-cyanAccent transition-colors">
+            <span>Haut de page</span>
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ========================================================================
+       PRÉVISUALISATION FLOTTANTE MAGNÉTIQUE (STYLE 02 : SWISS GRID)
+       ======================================================================== -->
+  <div id="swiss-floating-preview" class="hidden lg:block rounded-2xl border theme-border theme-surface shadow-2xl p-4 overflow-hidden">
+    <div id="swiss-preview-content" class="w-full h-full flex flex-col justify-between">
+      <!-- Contenu SVG injecté dynamiquement selon la ligne survolée -->
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       TIROIR LATÉRAL D'ÉTUDE DE CAS INTERACTIF (COMMUN AUX DEUX STYLES)
+       ======================================================================== -->
+  <div id="case-study-drawer" class="drawer-backdrop fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex justify-end" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+    <div id="drawer-overlay-close" class="flex-1 h-full"></div>
+
+    <div class="drawer-panel w-full max-w-2xl h-full theme-surface border-l theme-border shadow-2xl overflow-y-auto p-6 sm:p-10 flex flex-col justify-between">
+      <div>
+        <!-- Barre supérieure du tiroir -->
+        <div class="flex items-center justify-between pb-6 border-b theme-border">
+          <div class="flex items-center gap-3">
+            <span id="drawer-number" class="font-mono text-xs font-semibold px-2.5 py-1 rounded-full bg-cyanAccent/15 text-cyanAccent">[01]</span>
+            <span id="drawer-category" class="font-mono text-xs theme-muted uppercase tracking-wider">Catégorie</span>
+          </div>
+          <button id="drawer-close-btn" type="button" aria-label="Fermer l'étude de cas" class="w-9 h-9 rounded-full theme-canvas border theme-border hover:border-cyanAccent flex items-center justify-center theme-text transition-colors cursor-pointer">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Titre & Résumé -->
+        <div class="mt-8">
+          <h2 id="drawer-title" class="text-2xl sm:text-3xl font-bold tracking-tight theme-text">Titre du projet</h2>
+          <p id="drawer-subtitle" class="mt-3 text-base theme-muted leading-relaxed">Sous-titre détaillé du projet.</p>
+        </div>
+
+        <!-- Métriques clés du projet -->
+        <div id="drawer-metrics" class="mt-7 grid grid-cols-3 gap-3 p-4 rounded-2xl theme-canvas border theme-border"></div>
+
+        <!-- Sections structurées UX -->
+        <div class="mt-8 space-y-7">
+          <div>
+            <h3 class="font-mono text-xs uppercase tracking-wider text-cyanAccent mb-2">01 // Le Défi UX</h3>
+            <p id="drawer-challenge" class="text-sm sm:text-base theme-text opacity-90 leading-relaxed"></p>
+          </div>
+
+          <div class="p-5 rounded-2xl theme-canvas border theme-border">
+            <h3 class="font-mono text-xs uppercase tracking-wider theme-text mb-2">02 // Architecture &amp; Décisions UI</h3>
+            <p id="drawer-architecture" class="text-sm theme-muted leading-relaxed"></p>
+            <div id="drawer-tags" class="mt-4 flex flex-wrap gap-2"></div>
+          </div>
+
+          <div>
+            <h3 class="font-mono text-xs uppercase tracking-wider text-amberAccent mb-2">03 // Impact &amp; Résultats</h3>
+            <p id="drawer-outcome" class="text-sm sm:text-base theme-text opacity-90 leading-relaxed"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pied du tiroir -->
+      <div class="mt-10 pt-6 border-t theme-border flex items-center justify-between gap-4">
+        <span class="font-mono text-xs theme-muted">Rôle : Lead UX/UI &amp; Front-end</span>
+        <button id="drawer-next-btn" type="button" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-deepTeal dark:bg-cyanAccent text-white dark:text-abyssal text-xs sm:text-sm font-semibold hover:bg-cyanAccent dark:hover:bg-amberAccent transition-colors cursor-pointer">
+          <span>Projet suivant</span>
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION TOAST DISCRÈTE -->
+  <div id="toast-notification" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-3 transition-all duration-300 ease-futuristic">
+    <div class="flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-deepTeal dark:bg-cyanAccent text-white dark:text-abyssal text-xs font-semibold shadow-lg border border-white/10">
+      <span class="w-2 h-2 rounded-full bg-amberAccent dark:bg-abyssal"></span>
+      <span id="toast-message">Action effectuée</span>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       LOGIQUE JAVASCRIPT INTERACTIVE
+       ======================================================================== -->
+  <script>
+    // 1. DONNÉES COMPLÈTES DES PROJETS + VISUELS SVG POUR APERÇU MAGNÉTIQUE
+    const PROJECTS_DATA = {
+      aether: {
+        id: 'aether',
+        next: 'kinetix',
+        number: '[01]',
+        category: 'SaaS & Data Visualization',
+        title: 'Aether OS — Console de Télémétrie Cloud',
+        subtitle: 'Refonte complète de l’expérience de supervision multi-clusters pour réduire le temps de diagnostic lors des incidents critiques.',
+        metrics: [
+          { label: 'Temps de diagnostic', value: '-46%' },
+          { label: 'Adoption équipe', value: '94%' },
+          { label: 'Score SUS', value: '89/100' }
+        ],
+        challenge: 'Les ingénieurs DevOps devaient jongler entre 6 onglets denses et des graphiques surchargés pour identifier l’origine d’un pic de latence, générant une fatigue cognitive importante sous pression.',
+        architecture: 'Introduction d’une grille modulaire à densité adaptative, hiérarchisation chromatique stricte (fond clair apaisant, cyan pour les flux nominaux, ambre uniquement pour les alertes) et création d’une palette de commandes clavier instantanée.',
+        tags: ['Architecture Information', 'Design System', 'Data-Viz SVG', 'Accessibilité AAA'],
+        outcome: 'Réduction de près de moitié du temps moyen de résolution (MTTR) dès les 6 premières semaines suivant le déploiement auprès de 12 000 utilisateurs actifs.',
+        previewSvg: `
+          <div class="flex justify-between items-center font-mono text-[10px] theme-muted">
+            <span class="text-cyanAccent font-semibold">[01] AETHER CLOUD</span>
+            <span>12ms LATENCE</span>
+          </div>
+          <div class="my-auto p-3 rounded-xl theme-canvas border theme-border">
+            <svg class="w-full h-24 overflow-visible" viewBox="0 0 220 70" fill="none">
+              <path d="M0 58 Q 40 50, 75 32 T 145 24 T 220 8" stroke="#2BA4AC" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="145" cy="24" r="4" fill="#2BA4AC"/>
+              <circle cx="220" cy="8" r="4.5" fill="#F39322"/>
+            </svg>
+          </div>
+          <div class="font-mono text-[10px] theme-muted flex justify-between">
+            <span>TÉLÉMÉTRIE TEMPS RÉEL</span>
+            <span class="theme-text">99.98% UPTIME</span>
+          </div>
+        `
+      },
+      kinetix: {
+        id: 'kinetix',
+        next: 'prisma',
+        number: '[02]',
+        category: 'Fintech & Mobile App',
+        title: 'Kinetix — Trésorerie Automatisée B2B',
+        subtitle: 'Conception d’une application mobile et web permettant aux directeurs financiers de piloter leurs flux multi-devises en temps réel.',
+        metrics: [
+          { label: 'Validation virements', value: '8 sec' },
+          { label: 'Conversion onboarding', value: '+34%' },
+          { label: 'Note App Store', value: '4.9 ★' }
+        ],
+        challenge: 'Les outils bancaires d’entreprise souffrent d’interfaces rigides et anxiogènes. L’enjeu était d’apporter la fluidité d’une néobanque grand public tout en conservant une traçabilité comptable irréprochable.',
+        architecture: 'Développement d’un système de cartes virtuelles interactives, gestes de validation biométrique sécurisés et tableau prévisionnel de trésorerie par glissement temporel.',
+        tags: ['Mobile-First', 'Micro-Interactions', 'Parcours KYC', 'Prototypage'],
+        outcome: 'Augmentation de 34% du taux d’activation des comptes entreprises et validation des virements groupés en moins de 8 secondes.',
+        previewSvg: `
+          <div class="flex justify-between items-center font-mono text-[10px] theme-muted">
+            <span class="text-cyanAccent font-semibold">[02] KINETIX PAY</span>
+            <span class="text-amberAccent">ISO 20022</span>
+          </div>
+          <div class="my-auto bg-deepTeal text-white rounded-xl p-4 border border-cyanAccent/30 flex flex-col justify-between h-28">
+            <div class="flex justify-between font-mono text-[9px] opacity-70">
+              <span>CORP TREASURY</span>
+              <span>•••• 4829</span>
+            </div>
+            <div class="text-xl font-bold tracking-tight">148 920,00 €</div>
+            <div class="font-mono text-[9px] text-cyanAccent">+4.15% YIELD ACTIF</div>
+          </div>
+          <div class="font-mono text-[10px] theme-muted flex justify-between">
+            <span>VALIDATION BIOMÉTRIQUE</span>
+            <span class="theme-text">8 SEC</span>
+          </div>
+        `
+      },
+      prisma: {
+        id: 'prisma',
+        next: 'lumina',
+        number: '[03]',
+        category: 'Design System & Tokens',
+        title: 'Prisma — Architecture Multi-Marques',
+        subtitle: 'Création d’un langage visuel unifié et d’une bibliothèque de 140+ composants synchronisés entre Figma et React.',
+        metrics: [
+          { label: 'Vélocité UI', value: 'x2.4' },
+          { label: 'Composants', value: '142' },
+          { label: 'Dette visuelle', value: '-78%' }
+        ],
+        challenge: 'Quatre produits distincts du groupe présentaient des incohérences d’interaction, des contrastes insuffisants et une duplication constante du code front-end.',
+        architecture: 'Structuration d’une architecture de jetons (Design Tokens) à trois niveaux (Primitifs, Sémantiques, Composants) via Figma Variables, couplée à une documentation interactive Storybook.',
+        tags: ['Figma Variables', 'Tokens JSON', 'React / Tailwind', 'Gouvernance UI'],
+        outcome: 'Division par deux du temps de livraison des nouvelles fonctionnalités et conformité WCAG AA/AAA sur l’ensemble de l’écosystème.',
+        previewSvg: `
+          <div class="flex justify-between items-center font-mono text-[10px] theme-muted">
+            <span class="text-cyanAccent font-semibold">[03] PRISMA TOKENS</span>
+            <span>v3.0</span>
+          </div>
+          <div class="my-auto grid grid-cols-3 gap-2">
+            <div class="p-2.5 rounded-xl theme-canvas border theme-border text-center">
+              <div class="text-xl font-bold theme-text">Aa</div>
+              <div class="font-mono text-[8px] theme-muted mt-1">SCALE 1.25</div>
+            </div>
+            <div class="p-2.5 rounded-xl theme-canvas border theme-border flex flex-col justify-center gap-1.5">
+              <div class="h-2.5 w-full rounded-full bg-cyanAccent"></div>
+              <div class="h-2.5 w-2/3 rounded-full bg-amberAccent"></div>
+            </div>
+            <div class="p-2.5 rounded-xl theme-canvas border theme-border text-center flex flex-col justify-center">
+              <div class="text-sm font-bold text-cyanAccent">142</div>
+              <div class="font-mono text-[8px] theme-muted">COMPOSANTS</div>
+            </div>
+          </div>
+          <div class="font-mono text-[10px] theme-muted flex justify-between">
+            <span>FIGMA ↔ REACT</span>
+            <span class="theme-text">WCAG AAA</span>
+          </div>
+        `
+      },
+      lumina: {
+        id: 'lumina',
+        next: 'aether',
+        number: '[04]',
+        category: 'HealthTech & IA',
+        title: 'Lumina — Copilote de Diagnostic Clinique',
+        subtitle: 'Interface d’imagerie médicale assistée par IA conçue en co-création avec 35 radiologues et praticiens hospitaliers.',
+        metrics: [
+          { label: 'Temps d’analyse', value: '-42%' },
+          { label: 'Précision perçue', value: '97%' },
+          { label: 'Centres équipés', value: '18' }
+        ],
+        challenge: 'Les algorithmes d’IA génèrent souvent trop de faux positifs visuels qui polluent la lecture des clichés médicaux et ralentissent le praticien.',
+        architecture: 'Conception d’un mode « Calme Clinique » : les annotations IA restent invisibles par défaut et se révèlent par un survol magnétique doux avec indice de confiance expliqué en langage clair.',
+        tags: ['Recherche Terrain', 'IA Explicable', 'Ergonomie Cognitive', 'Prototypage'],
+        outcome: 'Adopté dans 18 établissements hospitaliers avec une baisse mesurée de 42% du temps de lecture par dossier patient.',
+        previewSvg: `
+          <div class="flex justify-between items-center font-mono text-[10px] theme-muted">
+            <span class="text-cyanAccent font-semibold">[04] LUMINA IA</span>
+            <span>CERTIFIÉ CE</span>
+          </div>
+          <div class="my-auto flex items-center justify-center p-2 rounded-xl theme-canvas border theme-border">
+            <svg class="w-24 h-24" viewBox="0 0 100 100" fill="none">
+              <circle cx="50" cy="50" r="38" stroke="#2BA4AC" stroke-opacity="0.35" stroke-dasharray="3 3"/>
+              <circle cx="50" cy="50" r="22" stroke="#2BA4AC" stroke-width="1.5"/>
+              <circle cx="50" cy="50" r="10" fill="#2BA4AC" fill-opacity="0.25"/>
+              <circle cx="66" cy="34" r="4" fill="#F39322"/>
+            </svg>
+          </div>
+          <div class="font-mono text-[10px] theme-muted flex justify-between">
+            <span>DIAGNOSTIC ASSISTÉ</span>
+            <span class="text-cyanAccent font-semibold">-42% TEMPS</span>
+          </div>
+        `
+      }
+    };
+
+    // 2. GESTION DU MODE CLAIR / MODE SOMBRE (SWITCH SOLEIL / LUNE)
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const htmlEl = document.documentElement;
+
+    function applyTheme(isDark) {
+      if (isDark) {
+        htmlEl.classList.add('dark');
+      } else {
+        htmlEl.classList.remove('dark');
+      }
+      try {
+        localStorage.setItem('portfolio-theme', isDark ? 'dark' : 'light');
+      } catch (e) {}
+    }
+
+    // Initialisation du thème (clair lumineux par défaut, ou préférence sauvegardée)
+    try {
+      const savedTheme = localStorage.getItem('portfolio-theme');
+      if (savedTheme === 'dark') {
+        applyTheme(true);
+      }
+    } catch (e) {}
+
+    themeToggleBtn.addEventListener('click', () => {
+      const willBeDark = !htmlEl.classList.contains('dark');
+      applyTheme(willBeDark);
+      showToast(willBeDark ? 'Mode sombre futuriste activé' : 'Mode clair lumineux activé');
+    });
+
+    // 3. BASCULE ENTRE STYLE 01 (BENTO) ET STYLE 02 (SWISS GRID) SANS ÉCRASEMENT
+    const styleTabs = document.querySelectorAll('.style-tab');
+    const styleIndicator = document.getElementById('style-pill-indicator');
+    const styleContainer = document.getElementById('style-switcher-container');
+    const viewBento = document.getElementById('view-bento');
+    const viewSwiss = document.getElementById('view-swiss');
+    let activeStyle = 'bento';
+
+    function moveStyleIndicator(targetTab) {
+      if (!targetTab || !styleIndicator || !styleContainer) return;
+      const containerRect = styleContainer.getBoundingClientRect();
+      const tabRect = targetTab.getBoundingClientRect();
+      const offsetLeft = tabRect.left - containerRect.left - 4;
+
+      styleIndicator.style.width = `${tabRect.width}px`;
+      styleIndicator.style.transform = `translateX(${offsetLeft}px)`;
+
+      styleTabs.forEach(tab => {
+        const isSelected = tab === targetTab;
+        tab.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+        if (isSelected) {
+          tab.classList.remove('theme-muted');
+          tab.classList.add('theme-text');
+        } else {
+          tab.classList.remove('theme-text');
+          tab.classList.add('theme-muted');
+        }
+      });
+    }
+
+    function switchPortfolioStyle(styleName) {
+      activeStyle = styleName;
+      const targetTab = document.querySelector(`.style-tab[data-style-target="${styleName}"]`);
+      moveStyleIndicator(targetTab);
+
+      // Mise à jour des liens d'ancrage de la navbar selon la vue active
+      const projLink = document.querySelector('.nav-tab[data-tab="projets"]');
+      const expLink = document.querySelector('.nav-tab[data-tab="expertise"]');
+
+      if (styleName === 'bento') {
+        viewSwiss.classList.add('hidden');
+        viewSwiss.classList.remove('swiss-active');
+        viewBento.classList.remove('hidden');
+        if (projLink) projLink.setAttribute('href', '#section-projets');
+        if (expLink) expLink.setAttribute('href', '#section-expertise');
+        showToast('Architecture 01 : Bento Light & Futuriste');
+      } else {
+        viewBento.classList.add('hidden');
+        viewSwiss.classList.remove('hidden');
+        // Déclenchement de l'animation Text Reveal ligne par ligne
+        requestAnimationFrame(() => {
+          viewSwiss.classList.add('swiss-active');
+        });
+        if (projLink) projLink.setAttribute('href', '#swiss-index');
+        if (expLink) expLink.setAttribute('href', '#swiss-index');
+        showToast('Architecture 02 : Swiss Grid & Typographie Cinétique');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    styleTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.getAttribute('data-style-target');
+        if (target !== activeStyle) {
+          switchPortfolioStyle(target);
+        }
+      });
+    });
+
+    // 4. PILULE GLISSANTE DE NAVIGATION (SPRING ANIMATION)
+    const navTabs = document.querySelectorAll('.nav-tab');
+    const navIndicator = document.getElementById('nav-pill-indicator');
+    const tabsContainer = document.getElementById('nav-tabs-container');
+
+    function moveNavIndicator(activeTab) {
+      if (!activeTab || !navIndicator || !tabsContainer) return;
+      const containerRect = tabsContainer.getBoundingClientRect();
+      const tabRect = activeTab.getBoundingClientRect();
+      const offsetLeft = tabRect.left - containerRect.left - 4;
+
+      navIndicator.style.width = `${tabRect.width}px`;
+      navIndicator.style.transform = `translateX(${offsetLeft}px)`;
+
+      navTabs.forEach(tab => {
+        if (tab === activeTab) {
+          tab.classList.remove('theme-muted');
+          tab.classList.add('theme-text');
+        } else {
+          tab.classList.remove('theme-text');
+          tab.classList.add('theme-muted');
+        }
+      });
+    }
+
+    window.addEventListener('load', () => {
+      moveNavIndicator(document.querySelector('.nav-tab[data-tab="projets"]'));
+      moveStyleIndicator(document.querySelector('.style-tab[data-style-target="bento"]'));
+    });
+
+    window.addEventListener('resize', () => {
+      const currentNav = document.querySelector('.nav-tab.theme-text') || navTabs[0];
+      const currentStyle = document.querySelector(`.style-tab[data-style-target="${activeStyle}"]`);
+      moveNavIndicator(currentNav);
+      moveStyleIndicator(currentStyle);
+    });
+
+    navTabs.forEach(tab => {
+      tab.addEventListener('click', () => moveNavIndicator(tab));
+    });
+
+    // 5. EFFET SPOTLIGHT RADIAL SUR LES CARTES BENTO
+    const bentoCards = document.querySelectorAll('.bento-card');
+    bentoCards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+      });
+    });
+
+    // 6. PRÉVISUALISATION FLOTTANTE MAGNÉTIQUE (STYLE 02 : SWISS GRID)
+    const swissRows = document.querySelectorAll('.swiss-row');
+    const floatingPreview = document.getElementById('swiss-floating-preview');
+    const previewContent = document.getElementById('swiss-preview-content');
+
+    swissRows.forEach(row => {
+      row.addEventListener('mouseenter', () => {
+        const key = row.getAttribute('data-project');
+        const data = PROJECTS_DATA[key];
+        if (data && previewContent && floatingPreview) {
+          previewContent.innerHTML = data.previewSvg;
+          floatingPreview.classList.add('visible');
+        }
+      });
+
+      row.addEventListener('mousemove', (e) => {
+        if (!floatingPreview) return;
+        const offsetX = 24;
+        const offsetY = -120;
+        const maxX = window.innerWidth - 360;
+        const posX = Math.min(e.clientX + offsetX, maxX);
+        const posY = Math.max(20, Math.min(e.clientY + offsetY, window.innerHeight - 265));
+        floatingPreview.style.transform = `translate3d(${posX}px, ${posY}px, 0) scale(1)`;
+      });
+
+      row.addEventListener('mouseleave', () => {
+        if (floatingPreview) {
+          floatingPreview.classList.remove('visible');
+        }
+      });
+    });
+
+    // 7. TIROIR D'ÉTUDE DE CAS INTERACTIF (COMMUN AUX DEUX STYLES)
+    const drawerBackdrop = document.getElementById('case-study-drawer');
+    const drawerCloseBtn = document.getElementById('drawer-close-btn');
+    const drawerOverlayClose = document.getElementById('drawer-overlay-close');
+    const drawerNextBtn = document.getElementById('drawer-next-btn');
+    let currentProjectId = 'aether';
+
+    function openCaseStudy(projectKey) {
+      const data = PROJECTS_DATA[projectKey];
+      if (!data) return;
+      currentProjectId = projectKey;
+
+      document.getElementById('drawer-number').textContent = data.number;
+      document.getElementById('drawer-category').textContent = data.category;
+      document.getElementById('drawer-title').textContent = data.title;
+      document.getElementById('drawer-subtitle').textContent = data.subtitle;
+      document.getElementById('drawer-challenge').textContent = data.challenge;
+      document.getElementById('drawer-architecture').textContent = data.architecture;
+      document.getElementById('drawer-outcome').textContent = data.outcome;
+
+      const metricsContainer = document.getElementById('drawer-metrics');
+      metricsContainer.innerHTML = data.metrics.map(m => `
+        <div class="text-center">
+          <div class="text-lg sm:text-xl font-bold theme-text tracking-tight">${m.value}</div>
+          <div class="font-mono text-[10px] theme-muted mt-0.5">${m.label}</div>
+        </div>
+      `).join('');
+
+      const tagsContainer = document.getElementById('drawer-tags');
+      tagsContainer.innerHTML = data.tags.map(tag => `
+        <span class="font-mono text-[11px] px-2.5 py-1 rounded-full theme-surface border theme-border theme-text">${tag}</span>
+      `).join('');
+
+      drawerBackdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeCaseStudy() {
+      drawerBackdrop.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // Ouverture au clic sur une carte Bento OU une ligne Swiss Grid
+    document.querySelectorAll('[data-project]').forEach(el => {
+      el.addEventListener('click', () => {
+        const key = el.getAttribute('data-project');
+        openCaseStudy(key);
+      });
+    });
+
+    drawerCloseBtn.addEventListener('click', closeCaseStudy);
+    drawerOverlayClose.addEventListener('click', closeCaseStudy);
+    drawerNextBtn.addEventListener('click', () => {
+      const nextKey = PROJECTS_DATA[currentProjectId]?.next || 'aether';
+      openCaseStudy(nextKey);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && drawerBackdrop.classList.contains('open')) {
+        closeCaseStudy();
+      }
+    });
+
+    // 8. COPIE D'E-MAIL EN UN CLIC + NOTIFICATION TOAST
+    const EMAIL_ADDRESS = 'camille@atelier-ui.fr';
+    const toastEl = document.getElementById('toast-notification');
+    const toastMsgEl = document.getElementById('toast-message');
+    let toastTimeout;
+
+    function showToast(message) {
+      toastMsgEl.textContent = message;
+      toastEl.classList.remove('opacity-0', 'translate-y-3');
+      toastEl.classList.add('opacity-100', 'translate-y-0');
+
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toastEl.classList.remove('opacity-100', 'translate-y-0');
+        toastEl.classList.add('opacity-0', 'translate-y-3');
+      }, 2600);
+    }
+
+    function copyEmailToClipboard() {
+      const tempInput = document.createElement('input');
+      tempInput.value = EMAIL_ADDRESS;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {}
+      document.body.removeChild(tempInput);
+
+      showToast('Adresse e-mail copiée dans le presse-papiers');
+
+      const footerLabel = document.getElementById('footer-copy-label');
+      if (footerLabel) {
+        const original = footerLabel.textContent;
+        footerLabel.textContent = 'E-mail copié ✓';
+        setTimeout(() => {
+          footerLabel.textContent = original;
+        }, 2200);
+      }
+    }
+
+    document.querySelectorAll('[data-copy-email]').forEach(btn => {
+      btn.addEventListener('click', copyEmailToClipboard);
+    });
+  </script>
+</body>
+</html>
